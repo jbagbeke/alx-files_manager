@@ -13,7 +13,7 @@ class DBClient {
     }).catch((error) => console.log(error));
   }
 
-  async isAlive() {
+  isAlive() {
     return this.connected;
   }
 
