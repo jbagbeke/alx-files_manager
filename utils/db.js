@@ -28,7 +28,7 @@ class DBClient {
     await this.dbClient.connect();
     const db = this.dbClient.db();
     const fileCollection = await db.collection('files').countDocuments();
-    return fileCollection;
+    return Number(fileCollection);
   }
 }
 
