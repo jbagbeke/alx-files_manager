@@ -32,13 +32,13 @@ class DBClient {
     return Number(fileCollection);
   }
 
-  async keyExists(key) {
+  async findUser(userObj) {
     await this.dbClient.connect();
     const db = this.dbClient.db();
-    const cursor = await db.collection('users').find({ email: key });
-    const docs = await cursor.toArray();
-    if (docs.length > 0) {
-      return true;
+
+    const user = await db.collection('users').findOne(userObj);
+    if (user) {
+      return user;
     }
     return false;
   }

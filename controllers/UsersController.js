@@ -23,7 +23,7 @@ const UsersContoller = {
     }
 
     if (dbClient.isAlive()) {
-      if (await dbClient.keyExists(email)) {
+      if (await dbClient.findUser({ email })) {
         res.status(400).json({ error: 'Already exist' });
         res.end();
       } else {
