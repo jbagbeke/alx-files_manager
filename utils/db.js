@@ -1,4 +1,5 @@
 const mongodb = require('mongodb');
+const crypto = require('crypto');
 
 class DBClient {
   constructor() {
@@ -29,6 +30,30 @@ class DBClient {
     const db = this.dbClient.db();
     const fileCollection = await db.collection('files').countDocuments();
     return Number(fileCollection);
+  }
+
+  async keyExists(key) {
+    await this.dbClient.connect();
+    const db = this.dbClient.db();
+    const cursor = await db.collection('users').find({ email: key });
+    const docs = await cursor.toArray();
+    if (docs.length > 0) {
+      return true;
+    }
+    return false;
+  }
+
+  async insertDocument(userObj) {
+    await this.dbClient.connect();
+
+    const sha1Pwd = crypto.createHash('sha1');
+    sha1Pwd.update(userObj.password);
+    const hashedPwd = sha1Pwd.digest('hex');
+    const newUserObj = { email: userObj.email, password: hashedPwd };
+
+    const db = this.dbClient.db();
+    const result = await db.collection('users').insertOne(newUserObj);
+    return { id: result.insertedId, email: userObj.email };
   }
 }
 
