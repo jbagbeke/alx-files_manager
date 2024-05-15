@@ -12,21 +12,24 @@ const UsersContoller = {
     const password = 'password' in requestBody ? requestBody.password : false;
 
     if (!email) {
-      res.status = 400;
-      res.send({ error: 'Missing email' });
-    } else if (!password) {
-      res.status = 400;
-      res.send({ error: 'Missing password' });
+      res.status(400).json({ error: 'Missing email' });
+      res.end();
+      return;
+    }
+    if (!password) {
+      res.status(400).json({ error: 'Missing password' });
+      res.end();
+      return;
     }
 
     if (dbClient.isAlive()) {
       if (await dbClient.keyExists(email)) {
-        res.status = 400;
-        res.send({ error: 'Already exist' });
+        res.status(400).json({ error: 'Already exist' });
+        res.end();
       } else {
-        res.status = 201;
-        const userObj = await dbClient.insertDocument({ email, password });
-        res.send(userObj);
+        const userObj = await dbClient.insertUser({ email, password });
+        res.status(201).json(userObj);
+        res.end();
       }
     }
   }),

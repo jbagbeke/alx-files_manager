@@ -1,5 +1,5 @@
 const mongodb = require('mongodb');
-const crypto = require('crypto');
+const sha1 = require('sha1');
 
 class DBClient {
   constructor() {
@@ -43,12 +43,10 @@ class DBClient {
     return false;
   }
 
-  async insertDocument(userObj) {
+  async insertUser(userObj) {
     await this.dbClient.connect();
 
-    const sha1Pwd = crypto.createHash('sha1');
-    sha1Pwd.update(userObj.password);
-    const hashedPwd = sha1Pwd.digest('hex');
+    const hashedPwd = sha1(userObj.password);
     const newUserObj = { email: userObj.email, password: hashedPwd };
 
     const db = this.dbClient.db();
