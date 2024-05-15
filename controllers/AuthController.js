@@ -13,25 +13,24 @@ const AuthController = {
     if (authorization) {
       const credentials = Buffer.from(authorization.split(' ')[1], 'base64').toString('utf-8').split(':');
 
-      if (credentials.length >= 2) {
+      if (credentials && credentials.length >= 2) {
         const email = credentials[0];
         const password = credentials[1];
 
         if (dbClient.isAlive()) {
-          const userId = await dbClient.findUser({ email, password: sha1(password) });
+          const userObj = await dbClient.findUser({ email, password: sha1(password) });
 
-          if (userId) {
+          if (userObj) {
             const uuidToken = uuidv4();
-            await redisClient.set(`auth_${uuidToken}`, userId._id, 86400);
+            await redisClient.set(`auth_${uuidToken}`, userObj._id, 86400);
             res.status(200).json({ token: uuidToken });
-            res.end();
-          } else {
-            res.status(401).json({ error: 'Unautorized' });
             res.end();
           }
         }
       }
     }
+    res.status(401).json({ error: 'Unautorized' });
+    res.end();
   }),
   getDisconnect: app.get('/disconnect', async (req, res) => {
     const userToken = 'x-token' in req.headers ? req.headers['x-token'] : false;
@@ -42,8 +41,7 @@ const AuthController = {
       if (userId) {
         await redisClient.del(`auth_${userToken}`);
         res.status = 204;
-        res.send('');
-        return;
+        res.send();
       }
     }
     res.status(401).json({ error: 'Unauthorized' });
