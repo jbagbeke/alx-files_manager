@@ -53,6 +53,26 @@ class DBClient {
     const result = await db.collection('users').insertOne(newUserObj);
     return { id: result.insertedId, email: userObj.email };
   }
+
+  async findFile(fileObj) {
+    await this.dbClient.connect();
+    const db = this.dbClient.db();
+
+    const file = await db.collection('files').findOne(fileObj);
+
+    if (file) {
+      return file;
+    }
+    return false;
+  }
+
+  async insertFile(fileObj) {
+    await this.dbClient.connect();
+    const db = this.dbClient.db();
+
+    await db.collection('files').insertOne(fileObj);
+    return fileObj;
+  }
 }
 
 const dbClient = new DBClient();
